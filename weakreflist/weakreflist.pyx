@@ -13,11 +13,11 @@ cdef class WeakList(list):
     def __contains__(self, item):
         return list.__contains__(self, _get_ref(item, self.remove))
 
-    def __getitem__(self, item):
-        return _get_object(list.__getitem__(self, item))
+    def __getitem__(self, *args):
+        return _get_object(list.__getitem__(self, *args))
 
-    def __getslice__(self, i, j):
-        return [_get_object(x) for x in list.__getslice__(self, i, j)] #slow?
+    def __getslice__(self, *args):
+        return [_get_object(x) for x in list.__getslice__(self, *args)] #slow?
 
     def __iter__(self):
         for x in list.__iter__(self):
