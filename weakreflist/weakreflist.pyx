@@ -39,7 +39,7 @@ cdef class WeakList(list):
     def __setslice__(self, i, j, items):
         super(WeakList, self).__setslice__(i, j, (_get_ref(x, self) for x in items))
 
-    def _remove(self, item):
+    cdef _remove(object self, object item):
         while super(WeakList, self).__contains__(item):
             super(WeakList, self).remove(item)
 
@@ -57,6 +57,9 @@ cdef class WeakList(list):
 
     def insert(self, i, item):
         super(WeakList, self).insert(i, _get_ref(item, self))
+        
+    def pop(self, i=-1):
+        return _get_object(super(WeakList, self).pop(i))
 
     def remove(self, item):
         self._remove(_get_ref(item, self))
