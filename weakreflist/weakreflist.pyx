@@ -98,6 +98,6 @@ cdef class WeakList(list):
         def __get__(self):
             return self._callback
         def __set__(self, object _callback):
-            if ((_callback is not None) or (not hasattr(_callback, '__call__'))):
+            if ((_callback is not None) and (not hasattr(_callback, '__call__'))):
                 raise TypeError("'{!s}' object is not callable".format(getattr(_callback, '__class__').__name__)
             self._callback = _callback
