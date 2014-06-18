@@ -25,14 +25,13 @@ cdef inline object _get_ref(object x, object self):
 
 cdef class WeakList(list):
 
-    def __cinit__(self, object items, object callback=None):
-        if ((callback is not None) or (not hasattr(callback, '__call__'))):
-            raise TypeError("'{!s}' object is not callable".format(getattr(callable, '__class__').__name__)
-        self.callback = callback
+    def __cinit__(self):
+        self._callback = None
 
     def __init__(self, object items=None, object callback=None):
         cdef object x
         items = items or []
+        self.callback = callback
         super(WeakList, self).__init__((_get_ref(x, self) for x in items))
 
     def __contains__(self, object item):
@@ -95,3 +94,12 @@ cdef class WeakList(list):
 
     def remove(self, object item):
         super(WeakList, self).remove(_get_ref(item, self))
+        
+    property callback:
+        def __get__(self):
+            return self._callback
+        def __set__(self, object callback):
+            if ((callback is not None) or (not hasattr(callback, '__call__'))):
+                raise TypeError("'{!s}' object is not callable".format(getattr(callable, '__class__').__name__)
+            self._callback = callback
+        
