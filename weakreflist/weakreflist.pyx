@@ -3,13 +3,34 @@ cdef inline object _get_object(object x):
     Py_XINCREF(x)
     return x
 
+cdef class _remove:
+    __slots__ = ('_obj')
+    cdef object _obj
+
+    def __cinit__(self, WeakList obj):
+        self._obj = PyWeakref_NewRef(obj, None)
+
+    def __call__(self, object item):
+        cdef WeakList l = _get_object(self._obj)
+        cdef object callback = l.callback
+
+        if callback is not None:
+            callback(item)
+        while super(WeakList, l).__contains__(item):
+            super(WeakList, l).remove(item)
+
 cdef inline object _get_ref(object x, object self):
-    return PyWeakref_NewRef(x, self._remove)
+    return PyWeakref_NewRef(x, _remove(self))
 
 
 cdef class WeakList(list):
 
-    def __init__(self, object items=None):
+    def __cinit__(self, object items, object callback=None):
+        if ((callback is not None) or (not hasattr(callback, '__call__'))):
+            raise TypeError("'{!s}' object is not callable".format(getattr(callable, '__class__').__name__)
+        self.callback = callback
+
+    def __init__(self, object items=None, object callback=None):
         cdef object x
         items = items or []
         super(WeakList, self).__init__((_get_ref(x, self) for x in items))
@@ -52,10 +73,6 @@ cdef class WeakList(list):
     def __setslice__(self, Py_ssize_t i, Py_ssize_t j, object items):
         cdef slice s = PySlice_New(i, j, None)
         self.__setitem__(s, items)
-
-    cpdef _remove(self, object item):
-        while super(WeakList, self).__contains__(item):
-            super(WeakList, self).remove(item)
 
     def append(self, object item):
         super(WeakList, self).append(_get_ref(item, self))
