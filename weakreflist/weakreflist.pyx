@@ -28,10 +28,9 @@ cdef class WeakList(list):
     def __cinit__(self):
         self._callback = None
 
-    def __init__(self, object items=None, object callback=None):
+    def __init__(self, object items=None):
         cdef object x
         items = items or []
-        self.callback = callback
         super(WeakList, self).__init__((_get_ref(x, self) for x in items))
 
     def __contains__(self, object item):
