@@ -6,4 +6,4 @@ cdef extern from "Python.h":
 
 
 cdef class WeakList(list):
-    cpdef _remove(self, object item)
+    cdef object callback
