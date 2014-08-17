@@ -1,6 +1,6 @@
 cdef inline object _get_object(object x):
     x = PyWeakref_GetObject(x)
-    Py_XINCREF(x)
+    Py_INCREF(x)
     return x
 
 cdef class _remove:
